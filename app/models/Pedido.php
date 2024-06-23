@@ -50,9 +50,9 @@ class Pedido
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDato->prepararConsulta("UPDATE usuarios SET usuario = :usuario, clave = :clave WHERE id = :id");
-        $consulta->bindValue(':usuario', $this->usuario, PDO::PARAM_STR);
-        $consulta->bindValue(':clave', $this->clave, PDO::PARAM_STR);
-        $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
+        // $consulta->bindValue(':usuario', $this->usuario, PDO::PARAM_STR);
+        // $consulta->bindValue(':clave', $this->clave, PDO::PARAM_STR);
+        // $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
         $consulta->execute();
     }
 

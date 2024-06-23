@@ -1,6 +1,7 @@
 <?php
 require_once './models/Usuario.php';
 require_once './interfaces/IApiUsable.php';
+require_once './utils/Autentificador.php';
 
 class UsuarioController extends Usuario implements IApiUsable
 {
@@ -75,5 +76,37 @@ class UsuarioController extends Usuario implements IApiUsable
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function Ingresar($request, $response, $args)
+    {
+      $parametros = $request->getParsedBody();
+
+      $nombre = $parametros['nombre'];
+      $clave = $parametros['clave'];
+      $id = $parametros['id'];
+
+      $datos = array('nombre' => $nombre, 'clave' => $clave, 'id' => $id);
+
+      $usuario = Autentificador::Ingresar($datos);
+      if (empty($usuario)){
+        $payload = "usuario o id incorrecto";
+      }
+      else{
+        if(password_verify($clave, $usuario->clave)){
+          $datosAGuardar = array('nombre' => $usuario->usuario, 'ocupacion' => $usuario->ocupacion,'mesaOcupada' => $usuario->mesaOcupada,'id' => $usuario->id);
+          
+          $token = AutentificadorJWT::CrearToken($datosAGuardar);
+          $payload = json_encode(array('jwt' => $token));
+
+        }
+        else{
+          $payload = "Clave incorrecta";
+        }
+      }
+
+      $response->getBody()->write($payload);
+      return $response
+        ->withHeader('Content-Type', 'application/json');
     }
 }
