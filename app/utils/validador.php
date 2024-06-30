@@ -5,12 +5,23 @@ class Validador
     public static function ValidarTipo($tipo){
         if(self::ValidarSTR($tipo)){
             $tipoMinuscula = strtolower($tipo);
-            if($tipoMinuscula == "camiseta" || $tipoMinuscula == "pantalon"){
+            if($tipoMinuscula == "bartender" || $tipoMinuscula == "cervecero" || $tipoMinuscula == "mozo" || $tipoMinuscula == "cocinero" || $tipoMinuscula == "socio"){
                 return true;
             }
         }
         return false;
     }
+
+    public static function ValidarTipoEspecifico($tipo,$tipoBuscar){
+        if(self::ValidarSTR($tipo)){
+            $tipoMinuscula = strtolower($tipo);
+            if($tipoMinuscula == $tipoBuscar ){
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public static function ValidarTalla($tipo){
         if(self::ValidarSTR($tipo)){
             $tipoMinuscula = strtolower($tipo);

@@ -1,8 +1,7 @@
 <?php
 require_once './models/Productos.php';
-require_once './interfaces/IApiUsable.php';
 
-class ProductoController extends Usuario implements IApiUsable
+class ProductoController
 {
     public function CargarUno($request, $response, $args)
     {
