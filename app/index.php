@@ -15,6 +15,7 @@ require __DIR__ . '/../vendor/autoload.php';
 require_once './db/AccesoDatos.php';
 require_once './utils/AutentificadorJWT.php';
 // require_once './middlewares/Logger.php';
+require_once './middlewares/logginmw.php';
 
 require_once './controllers/UsuarioController.php';
 require_once './controllers/ProductoController.php';
@@ -43,8 +44,9 @@ $app->addBodyParsingMiddleware();
 
 // JWT test
 $app->group('/jwt', function (RouteCollectorProxy $group) {
-  // $group->post('[/]', \UsuarioController::class . ':CargarUno');
-  $group->post('/crearToken', \UsuarioController::class . ':Ingresar');
+  $group->post('/crearToken', \UsuarioController::class . ':Ingresar')
+  ->add([new Logginmw(),'loginValidados'])
+  ->add([new Logginmw(),'loginsSeteados']);
 
   $group->get('/devolverPayLoad', function (Request $request, Response $response) {
     $header = $request->getHeaderLine('Authorization');
