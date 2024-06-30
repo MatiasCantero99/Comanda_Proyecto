@@ -2,9 +2,20 @@
 require_once './models/Usuario.php';
 require_once './interfaces/IApiUsable.php';
 require_once './utils/Autentificador.php';
+require_once './utils/validador.php';
 
 class UsuarioController extends Usuario implements IApiUsable
 {
+  public static function ValidarUsuarioLogin($pdt){
+    $response = "";
+    if (!Validador::ValidarInt($pdt['id'])){
+        $response .= "El id no es numerico. ";
+    }
+    if (!Validador::ValidarSTR($pdt['clave'])){
+        $response .= "La clave no es texto. ";
+    }
+    return $response;
+}
     public function CargarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
@@ -82,15 +93,15 @@ class UsuarioController extends Usuario implements IApiUsable
     {
       $parametros = $request->getParsedBody();
 
-      $nombre = $parametros['nombre'];
+      //$nombre = $parametros['nombre'];
       $clave = $parametros['clave'];
       $id = $parametros['id'];
 
-      $datos = array('nombre' => $nombre, 'clave' => $clave, 'id' => $id);
+      $datos = array('clave' => $clave, 'id' => $id);
 
       $usuario = Autentificador::Ingresar($datos);
       if (empty($usuario)){
-        $payload = "usuario o id incorrecto";
+        $payload = "id incorrecto";
       }
       else{
         if(password_verify($clave, $usuario->clave)){
