@@ -1,18 +1,26 @@
 <?php
 require_once './models/Usuario.php';
-require_once './interfaces/IApiUsable.php';
 require_once './utils/Autentificador.php';
 require_once './utils/validador.php';
 
-class UsuarioController extends Usuario implements IApiUsable
+class UsuarioController
 {
-  public static function ValidarUsuarioLogin($pdt){
+  public static function ValidarUsuario($usuario,$datos){
     $response = "";
-    if (!Validador::ValidarInt($pdt['id'])){
-        $response .= "El id no es numerico. ";
+    if (!Validador::ValidarSTR($usuario['usuario'])){
+        $response .= "El usuario no es texto. ";
     }
-    if (!Validador::ValidarSTR($pdt['clave'])){
-        $response .= "La clave no es texto. ";
+    if (!Validador::ValidarSTR($usuario['clave'])){
+        $response .= "La clave no es correcta. ";
+    }
+    if (!Validador::ValidarTipo($usuario['ocupacion'])){
+        $response .= "El tipo no es bartender, mozo, cocinero, cervecero o socio. ";
+    }
+    if (!Validador::ValidarTipoEspecifico($datos->ocupacion, 'socio')){
+      $response .= "El usuario no es socio ";
+  }
+    if (!Validador::ValidarInt($usuario['edad'])){
+        $response .= "La edad no es numerica ";
     }
     return $response;
 }

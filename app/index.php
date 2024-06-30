@@ -16,11 +16,14 @@ require_once './db/AccesoDatos.php';
 require_once './utils/AutentificadorJWT.php';
 // require_once './middlewares/Logger.php';
 require_once './middlewares/logginmw.php';
+require_once './middlewares/ingresomw.php';
+require_once './middlewares/usuariosmw.php';
 
 require_once './controllers/UsuarioController.php';
 require_once './controllers/ProductoController.php';
 require_once './controllers/MesaController.php';
 require_once './controllers/PedidoController.php';
+require_once './controllers/IngresoController.php';
 
 // php -S localhost:666 -t app
 
@@ -44,7 +47,7 @@ $app->addBodyParsingMiddleware();
 
 // JWT test
 $app->group('/jwt', function (RouteCollectorProxy $group) {
-  $group->post('/crearToken', \UsuarioController::class . ':Ingresar')
+  $group->post('/crearToken', \IngresoController::class . ':Ingresar')
   ->add([new Logginmw(),'loginValidados'])
   ->add([new Logginmw(),'loginsSeteados']);
 
@@ -77,34 +80,17 @@ $app->group('/jwt', function (RouteCollectorProxy $group) {
     return $response
       ->withHeader('Content-Type', 'application/json');
   });
-
-  $group->get('/verificarToken', function (Request $request, Response $response) {
-    $header = $request->getHeaderLine('Authorization');
-    $token = trim(explode("Bearer", $header)[1]);
-    $esValido = false;
-
-    try {
-      AutentificadorJWT::verificarToken($token);
-      $esValido = true;
-    } catch (Exception $e) {
-      $payload = json_encode(array('error' => $e->getMessage()));
-    }
-
-    if ($esValido) {
-      $payload = json_encode(array('valid' => $esValido));
-    }
-
-    $response->getBody()->write($payload);
-    return $response
-      ->withHeader('Content-Type', 'application/json');
-  });
 });
 
-// Routes
+//USUARIOS
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
-    $group->post('[/]', \UsuarioController::class . ':CargarUno');
+
+    $group->post('[/]', \UsuarioController::class . ':CargarUno')
+    ->add([new Usuariosmw(),'usuarioValidados'])
+    ->add([new Usuariosmw(),'usuarioSeteados'])
+    ->add([new Ingresomw(),'verificarToken']);
   });
 
   $app->group('/productos', function (RouteCollectorProxy $group) {
