@@ -18,6 +18,9 @@ require_once './utils/AutentificadorJWT.php';
 require_once './middlewares/logginmw.php';
 require_once './middlewares/ingresomw.php';
 require_once './middlewares/usuariosmw.php';
+require_once './middlewares/productomw.php';
+require_once './middlewares/pedidomw.php';
+require_once './middlewares/fotomw.php';
 
 require_once './controllers/UsuarioController.php';
 require_once './controllers/ProductoController.php';
@@ -93,22 +96,39 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     ->add([new Ingresomw(),'verificarToken']);
   });
 
+//PRODUCTOS
   $app->group('/productos', function (RouteCollectorProxy $group) {
     $group->get('[/]', \ProductoController::class . ':TraerTodos');
     $group->get('/{nombre}', \ProductoController::class . ':TraerUno');
-    $group->post('[/]', \ProductoController::class . ':CargarUno');
+    $group->post('[/]', \ProductoController::class . ':CargarUno')
+    ->add([new Productomw(),'productoValidados'])
+    ->add([new Productomw(),'productoSeteados'])
+    ->add([new Ingresomw(),'verificarToken']);
   });
 
+  //MESA
   $app->group('/mesa', function (RouteCollectorProxy $group) {
     $group->get('[/]', \MesaController::class . ':TraerTodos');
     $group->get('/{numero}', \MesaController::class . ':TraerUno');
     $group->post('[/]', \MesaController::class . ':CargarUno');
   });
 
+  //PEDIDO
   $app->group('/pedido', function (RouteCollectorProxy $group) {
     $group->get('[/]', \PedidoController::class . ':TraerTodos');
-    $group->get('/{numero}', \PedidoController::class . ':TraerUno');
-    $group->post('[/]', \PedidoController::class . ':CargarUno');
+    $group->post('[/]', \PedidoController::class . ':CargarUno')
+    ->add([new Pedidomw(),'pedidoValidados'])
+    ->add([new Pedidomw(),'pedidoSeteados'])
+    ->add([new Ingresomw(),'verificarToken']);
+
+    $group->post('/cargarFoto', \PedidoController::class . ':CargarFoto')
+    ->add([new Fotomw(),'fotoValidados'])
+    ->add([new Fotomw(),'fotoSeteados'])
+    ->add([new Ingresomw(),'verificarToken']);
+
+    $group->get('/listarPedidos', \PedidoController::class . ':TraerLista')
+    ->add([new Pedidomw(),'listaValidados'])
+    ->add([new Ingresomw(),'verificarToken']);
   });
 
 $app->get('[/]', function (Request $request, Response $response) {    

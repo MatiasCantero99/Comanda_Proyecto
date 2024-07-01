@@ -3,15 +3,34 @@ require_once './models/Productos.php';
 
 class ProductoController
 {
+  public static function ValidarProducto($producto,$datos){
+    $response = "";
+    if (!Validador::ValidarSTR($producto['nombre'])){
+        $response .= "El nombre no es texto. ";
+    }
+    if (!Validador::ValidarInt($producto['precio'])){
+        $response .= "el precio no es correcta. ";
+    }
+    if (!Validador::ValidarTipoEspecifico($datos->ocupacion, 'socio')){
+      $response .= "El usuario no es socio. ";
+    }
+    if (!Validador::ValidarInt($producto['stock'])){
+        $response .= "El stock no es numerico ";
+    }
+    if (!Validador::ValidarTipoProducto($producto['encargado'])){
+      $response .= "El encargado no es bartender, cocinero, cervecero.";
+  }
+    return $response;
+}
     public function CargarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
         $fechaVencimiento = new DateTime();
         $fechaVencimiento->modify('+45 days');
-        // Creamos el producto
         $pds = new Productos();
-        $pds->nombre = $parametros["nombre"];
+        $pds->nombre = str_replace(' ', '_', $parametros["nombre"]);
         $pds->stock = $parametros["stock"];
+        $pds->encargado = $parametros["encargado"];
         $pds->precio = $parametros["precio"];
         $pds->fechaIngreso = (new DateTime())->format('Y-m-d');
         $pds->fechaVencimiento = $fechaVencimiento->format('Y-m-d');

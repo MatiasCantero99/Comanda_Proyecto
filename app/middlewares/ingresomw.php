@@ -7,8 +7,12 @@ class Ingresomw
 {
     public static function verificarToken(Request $request, RequestHandler $handler): Response
     {
+        $token = null;
         $header = $request->getHeaderLine('Authorization');
-        $token = trim(explode("Bearer", $header)[1]);
+        if($header){
+
+            $token = trim(explode("Bearer", $header)[1]);
+        }
 
         try {
             AutentificadorJWT::VerificarToken($token);

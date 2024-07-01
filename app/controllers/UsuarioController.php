@@ -17,7 +17,7 @@ class UsuarioController
         $response .= "El tipo no es bartender, mozo, cocinero, cervecero o socio. ";
     }
     if (!Validador::ValidarTipoEspecifico($datos->ocupacion, 'socio')){
-      $response .= "El usuario no es socio ";
+      $response .= "El usuario no es socio. ";
   }
     if (!Validador::ValidarInt($usuario['edad'])){
         $response .= "La edad no es numerica ";

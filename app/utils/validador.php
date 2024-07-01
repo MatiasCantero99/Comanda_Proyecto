@@ -11,6 +11,15 @@ class Validador
         }
         return false;
     }
+    public static function ValidarTipoProducto($tipo){
+        if(self::ValidarSTR($tipo)){
+            $tipoMinuscula = strtolower($tipo);
+            if($tipoMinuscula == "bartender" || $tipoMinuscula == "cervecero"  || $tipoMinuscula == "cocinero"){
+                return true;
+            }
+        }
+        return false;
+    }
 
     public static function ValidarTipoEspecifico($tipo,$tipoBuscar){
         if(self::ValidarSTR($tipo)){

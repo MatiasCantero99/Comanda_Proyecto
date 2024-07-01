@@ -4,6 +4,7 @@ class Productos
 {
     public $id;
     public $nombre;
+    public $encargado;
     public $stock;
     public $precio;
     public $fechaIngreso;
@@ -12,12 +13,13 @@ class Productos
     public function crearProducto()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO producto (nombre,stock,precio,fechaIngreso,fechaVencimiento) VALUES (:nombre, :stock, :precio, :fechaIngreso, :fechaVencimiento)");
+        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO producto (nombre,stock,precio,fechaIngreso,fechaVencimiento, encargado) VALUES (:nombre, :stock, :precio, :fechaIngreso, :fechaVencimiento, :encargado)");
         $consulta->bindValue(':nombre', $this->nombre, PDO::PARAM_STR);
         $consulta->bindValue(':stock', $this->stock, PDO::PARAM_STR);
         $consulta->bindValue(':precio', $this->precio, PDO::PARAM_STR);
         $consulta->bindValue(':fechaIngreso', $this->fechaIngreso, PDO::PARAM_STR);
         $consulta->bindValue(':fechaVencimiento', $this->fechaVencimiento, PDO::PARAM_STR);
+        $consulta->bindValue(':encargado', $this->encargado, PDO::PARAM_STR);
         $consulta->execute();
 
         return $objAccesoDatos->obtenerUltimoId();
