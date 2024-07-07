@@ -6,8 +6,8 @@ class IngresoController
 {
     public static function ValidarLogin($pdt){
         $response = "";
-        if (!Validador::ValidarInt($pdt['id'])){
-            $response .= "El id no es numerico. ";
+        if (!Validador::ValidarSTR($pdt['usuario'])){
+            $response .= "El usuario no es texto. ";
         }
         if (!Validador::ValidarSTR($pdt['clave'])){
             $response .= "La clave no es texto. ";
@@ -20,17 +20,17 @@ class IngresoController
 
       //$nombre = $parametros['nombre'];
       $clave = $parametros['clave'];
-      $id = $parametros['id'];
+      $usuario = $parametros['usuario'];
 
-      $datos = array('clave' => $clave, 'id' => $id);
+      $datos = array('clave' => $clave, 'usuario' => $usuario);
 
       $usuario = Autentificador::Ingresar($datos);
       if (empty($usuario)){
-        $payload = "id incorrecto";
+        $payload = "usuario incorrecto";
       }
       else{
         if(password_verify($clave, $usuario->clave)){
-          $datosAGuardar = array('nombre' => $usuario->usuario, 'ocupacion' => $usuario->ocupacion,'mesaOcupada' => $usuario->mesaOcupada,'id' => $usuario->id);
+          $datosAGuardar = array('nombre' => $usuario->nombre, 'ocupacion' => $usuario->ocupacion,'mesaOcupada' => $usuario->mesaOcupada,'id' => $usuario->id);
           
           $token = AutentificadorJWT::CrearToken($datosAGuardar);
           $payload = json_encode(array('jwt' => $token));

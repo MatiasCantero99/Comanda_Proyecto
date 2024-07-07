@@ -2,6 +2,7 @@
 require_once './models/Usuario.php';
 require_once './utils/Autentificador.php';
 require_once './utils/validador.php';
+require_once './utils/PDF.php';
 
 class UsuarioController
 {
@@ -16,31 +17,36 @@ class UsuarioController
     if (!Validador::ValidarTipo($usuario['ocupacion'])){
         $response .= "El tipo no es bartender, mozo, cocinero, cervecero o socio. ";
     }
+    echo $datos->ocupacion;
     if (!Validador::ValidarTipoEspecifico($datos->ocupacion, 'socio')){
       $response .= "El usuario no es socio. ";
   }
     if (!Validador::ValidarInt($usuario['edad'])){
-        $response .= "La edad no es numerica ";
+        $response .= "La edad no es numerica. ";
     }
+    if (!Validador::ValidarSTR($usuario['nombre'])){
+      $response .= "El nombre no es texto. ";
+  }
     return $response;
 }
     public function CargarUno($request, $response, $args)
     {
-        $parametros = $request->getParsedBody();
-
-        $usuario = $parametros['usuario'];
-        $clave = $parametros['clave'];
-
-        // Creamos el usuario
-        $usr = new Usuario();
-        $usr->usuario = $usuario;
-        $usr->clave = $clave;
-        $usr->fechaAlta = (new DateTime())->format('Y-m-d');
-        $usr->ocupacion = $parametros["ocupacion"];
-        $usr->edad = $parametros["edad"];
-        $usr->crearUsuario();
-
-        $payload = json_encode(array("mensaje" => "Usuario creado con exito"));
+      $parametros = $request->getParsedBody();
+      
+      $usuario = $parametros['usuario'];
+      $clave = $parametros['clave'];
+      
+      // Creamos el usuario
+      $usr = new Usuario();
+      $usr->usuario = $usuario;
+      $usr->clave = $clave;
+      $usr->fechaAlta = (new DateTime())->format('Y-m-d');
+      $usr->ocupacion = $parametros["ocupacion"];
+      $usr->edad = $parametros["edad"];
+      $usr->nombre = $parametros["nombre"];
+      $usr->crearUsuario();
+      
+      $payload = json_encode(array("mensaje" => "Usuario creado con exito"));
 
         $response->getBody()->write($payload);
         return $response
@@ -59,24 +65,22 @@ class UsuarioController
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public function TraerTodos($request, $response, $args)
+    public function PDF($request, $response, $args)
     {
-        $lista = Usuario::obtenerTodos();
+        // Buscamos usuario por nombre
+        $lista = Usuario::PDF();
         $payload = json_encode(array("listaUsuario" => $lista));
-
+        $pdf = new PDFGenerator();
+        $pdf->generatePDFFromAssocArray($lista);
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
-    
-    public function ModificarUno($request, $response, $args)
+
+    public function TraerTodos($request, $response, $args)
     {
-        $parametros = $request->getParsedBody();
-
-        $nombre = $parametros['nombre'];
-        Usuario::modificarUsuario($nombre);
-
-        $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
+        $lista = Usuario::obtenerTodos();
+        $payload = json_encode(array("listaUsuario" => $lista));
 
         $response->getBody()->write($payload);
         return $response

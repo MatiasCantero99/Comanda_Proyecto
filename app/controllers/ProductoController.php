@@ -64,20 +64,6 @@ class ProductoController
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
-    
-    public function ModificarUno($request, $response, $args)
-    {
-        $parametros = $request->getParsedBody();
-
-        $nombre = $parametros['nombre'];
-        Usuario::modificarUsuario($nombre);
-
-        $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
-
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
-    }
 
     public function BorrarUno($request, $response, $args)
     {

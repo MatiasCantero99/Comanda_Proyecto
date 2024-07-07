@@ -23,14 +23,28 @@ class PedidoController
         if (!Validador::ValidarSTR($usuario['pedido'])){
             $response .= "El pedido no es texto. ";
         }
-        if (!Validador::ValidarSTR($usuario['mozo'])){
-            $response .= "el precio no es correcta. ";
+        if (!Validador::ValidarSTR($usuario['nombreCliente'])){
+            $response .= "El nombre no es texto. ";
         }
         if (!Validador::ValidarTipoEspecifico($datos->ocupacion, 'mozo')){
           $response .= "El usuario no es mozo. ";
         }
         if (!Validador::ValidarInt($usuario['mesa'])){
             $response .= "La mesa no es numerico ";
+        }
+        return $response;
+    }
+
+    public static function ValidarCambio($usuario,$datos){
+        $response = "";
+        if (!Validador::ValidarSTR($usuario['codigo'])){
+            $response .= "El pedido no es alfanumerico. ";
+        }
+        if (!Validador::ValidarInt($usuario['tiempo'])){
+            $response .= "El tiempo no es numerico. ";
+        }
+        if (!Validador::ValidarTipo($datos->ocupacion)){
+          $response .= "El usuario es incorrecto. ";
         }
         return $response;
     }
@@ -44,6 +58,10 @@ class PedidoController
     }
     public function CargarUno($request, $response, $args)
     {
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+        $datos = AutentificadorJWT::ObtenerData($token);
+        
         $numeroPedido = $this->generarCodigoAlfanumerico();
         $numeroPedidoIndividual = $this->generarCodigoAlfanumerico();
         $parametros = $request->getParsedBody();
@@ -54,11 +72,14 @@ class PedidoController
         $conceptoPedido->numeroPedido = $numeroPedido;
         $conceptoPedido->nombre = str_replace(' ', '_', $parametros["pedido"]);
         
+        Usuario::asignarMesa($datos->id,$parametros['mesa']);
+        
         $pedido = new Pedido();
-        $pedido->mozoAsignado = $parametros["mozo"];
+        $pedido->mozoAsignado = $datos->id;
         $pedido->mesa = $parametros["mesa"];
         $pedido->estado = "pendiente";
         $pedido->numeroPedido = $numeroPedido;
+        $pedido->nombre = $parametros["nombreCliente"];
         $resultado = $pedido->verificarPedido();
         if($resultado !== ''){
             $conceptoPedido->numeroPedido = $resultado;
@@ -66,9 +87,7 @@ class PedidoController
         }
         else{
             $mensaje = $conceptoPedido->crearConceptoPedido();
-            echo "asae";
             if($mensaje !== 'Nombre del Producto no encontrado'){
-                echo "asa";
                 $pedido->crearPedido();
             }
 
@@ -111,6 +130,24 @@ class PedidoController
         return $codigo;
     }
 
+    public function CambiarPedido($request, $response, $args)
+    {
+        $parametros = $request->getParsedBody();
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+        $datos = AutentificadorJWT::ObtenerData($token);
+        ConceptoPedido::cambiarPedido($parametros['codigo'],$parametros['tiempo']);
+        echo "hola";
+        ConceptoPedido::cambiarTiempo($parametros['codigo'],$parametros['tiempo']);
+
+        $mensaje = 'pedido actualizado';
+        $payload = json_encode(array("mensaje" => $mensaje));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
     public function TraerLista($request, $response, $args)
     {
         $header = $request->getHeaderLine('Authorization');
@@ -128,20 +165,6 @@ class PedidoController
     {
         $lista = Pedido::obtenerTodos();
         $payload = json_encode(array("listaPedido" => $lista));
-
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
-    }
-    
-    public function ModificarUno($request, $response, $args)
-    {
-        $parametros = $request->getParsedBody();
-
-        $nombre = $parametros['nombre'];
-        Usuario::modificarUsuario($nombre);
-
-        $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
 
         $response->getBody()->write($payload);
         return $response

@@ -9,7 +9,7 @@ class Logginmw
     public function loginsSeteados(Request $request, RequestHandler $handler): Response
     {   
         $parametros = $request->getParsedBody();
-        if(isset($parametros['id']) && isset($parametros['clave'])){
+        if(isset($parametros['usuario']) && isset($parametros['clave'])){
             $response = $handler->handle($request);
         }
         else{

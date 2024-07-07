@@ -80,4 +80,43 @@ class ConceptoPedido
         $consulta->bindValue(':fechaBaja', date_format($fecha, 'Y-m-d H:i:s'));
         $consulta->execute();
     }
+
+    public static function cambiarPedido($numeroPedido,$tiempo)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("UPDATE conceptopedido SET estado = :estado, tiempoestimado = :tiempoestimado WHERE numeroPedidoIndividual = :numeroPedido");
+        $consulta->bindValue(':numeroPedido', $numeroPedido, PDO::PARAM_STR);
+        $consulta->bindValue(':estado', 'en preparacion', PDO::PARAM_STR);
+        $consulta->bindValue(':tiempoestimado', (int)$tiempo, PDO::PARAM_INT);
+        $consulta->execute();
+    }
+
+    public static function cambiarTiempo($numeroPedido,$tiempo)
+    {
+        $numeroPedidoOriginal = self::traeNumeroPedido($numeroPedido);
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("UPDATE pedido SET estado = :estado, tiempoestimado = :nuevoTiempoEstimado  WHERE numeroPedido = :numeroPedido AND (tiempoestimado < :compararTiempo OR tiempoestimado IS NULL) ");
+        $consulta->bindValue(':numeroPedido', $numeroPedidoOriginal, PDO::PARAM_STR);
+        $consulta->bindValue(':estado', 'en preparacion', PDO::PARAM_STR);
+        $consulta->bindValue(':nuevoTiempoEstimado', (int)$tiempo, PDO::PARAM_INT);
+        $consulta->bindValue(':compararTiempo', (int)$tiempo, PDO::PARAM_INT);
+        echo "\n hola3sad";
+        $consulta->execute();
+        // try {
+        //     $consulta->execute();
+        //     echo "\n hola2";
+        // } catch (PDOException $e) {
+        //     echo 'Error en la consulta: ' . $e->getMessage();
+        // }
+    }
+
+    public static function traeNumeroPedido($numeroPedido)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT  numeroPedido FROM conceptopedido WHERE numeroPedidoIndividual = :numeroPedido");
+        $consulta->bindValue(':numeroPedido', $numeroPedido, PDO::PARAM_STR);
+        $consulta->execute();
+        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+        return $resultado['numeroPedido'];
+    }
 }

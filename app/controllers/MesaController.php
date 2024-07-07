@@ -8,10 +8,12 @@ class MesaController
         $parametros = $request->getParsedBody();
 
         // Creamos el producto
+        $codigo = $this->generarCodigoAlfanumerico();
         $mesa = new Mesa();
         $mesa->numero = $parametros["numero"];
         $mesa->estado = "vacio";
         $mesa->fechaIngreso = (new DateTime())->format('Y-m-d');
+        $mesa->codigo = $codigo;
         $mesa->crearMesa();
 
         $payload = json_encode(array("mensaje" => "Mesa creado con exito"));
@@ -19,6 +21,24 @@ class MesaController
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function generarCodigoAlfanumerico($longitud = 5) 
+    {
+        $caracteres = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    
+        $longitudCaracteres = strlen($caracteres);
+    
+        $codigo = '';
+    
+        for ($i = 0; $i < $longitud; $i++) 
+        {
+            $caracterAleatorio = $caracteres[rand(0, $longitudCaracteres - 1)];
+    
+            $codigo .= $caracterAleatorio;
+        }
+    
+        return $codigo;
     }
 
     public function TraerUno($request, $response, $args)
@@ -37,20 +57,6 @@ class MesaController
     {
         $lista = Mesa::obtenerTodos();
         $payload = json_encode(array("listaMesas" => $lista));
-
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
-    }
-    
-    public function ModificarUno($request, $response, $args)
-    {
-        $parametros = $request->getParsedBody();
-
-        $nombre = $parametros['nombre'];
-        Usuario::modificarUsuario($nombre);
-
-        $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
 
         $response->getBody()->write($payload);
         return $response

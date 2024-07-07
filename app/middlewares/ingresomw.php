@@ -10,10 +10,9 @@ class Ingresomw
         $token = null;
         $header = $request->getHeaderLine('Authorization');
         if($header){
-
             $token = trim(explode("Bearer", $header)[1]);
         }
-
+        
         try {
             AutentificadorJWT::VerificarToken($token);
             $response = $handler->handle($request);

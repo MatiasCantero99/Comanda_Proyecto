@@ -9,7 +9,7 @@ class Usuariosmw
     public function usuarioSeteados(Request $request, RequestHandler $handler): Response
     {   
         $parametros = $request->getParsedBody();
-        if(isset($parametros['usuario']) && isset($parametros['clave']) && isset($parametros['ocupacion']) && isset($parametros['edad'])){
+        if(isset($parametros['usuario']) && isset($parametros['clave']) && isset($parametros['ocupacion']) && isset($parametros['edad']) && isset($parametros['nombre'])){
             $response = $handler->handle($request);
         }
         else{

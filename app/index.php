@@ -88,12 +88,14 @@ $app->group('/jwt', function (RouteCollectorProxy $group) {
 //USUARIOS
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
-    $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
+    // $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
 
     $group->post('[/]', \UsuarioController::class . ':CargarUno')
     ->add([new Usuariosmw(),'usuarioValidados'])
     ->add([new Usuariosmw(),'usuarioSeteados'])
     ->add([new Ingresomw(),'verificarToken']);
+
+    $group->get('/PDF', \UsuarioController::class . ':PDF');
   });
 
 //PRODUCTOS
@@ -128,6 +130,11 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
 
     $group->get('/listarPedidos', \PedidoController::class . ':TraerLista')
     ->add([new Pedidomw(),'listaValidados'])
+    ->add([new Ingresomw(),'verificarToken']);
+
+    $group->post('/cambiarPedido', \PedidoController::class . ':CambiarPedido')
+    ->add([new Pedidomw(),'cambiarValidados'])
+    ->add([new Pedidomw(),'cambiarSeteados'])
     ->add([new Ingresomw(),'verificarToken']);
   });
 

@@ -8,14 +8,16 @@ class Pedido
     public $mozoAsignado;
     public $numeroPedido;
     public $rutaFoto;
+    public $nombre;
 
     public function crearPedido()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consultaInsert = $objAccesoDatos->prepararConsulta("INSERT INTO pedido ( estado, mozoAsignado, numeroPedido, mesa) VALUES ( :estado, :mozoAsignado, :numeroPedido, :mesa)");
+        $consultaInsert = $objAccesoDatos->prepararConsulta("INSERT INTO pedido ( estado, nombre, mozoAsignado, numeroPedido, mesa) VALUES ( :estado, :nombre, :mozoAsignado, :numeroPedido, :mesa)");
         $consultaInsert->bindValue(':estado', $this->estado, PDO::PARAM_STR);
         $consultaInsert->bindValue(':mozoAsignado', $this->mozoAsignado, PDO::PARAM_STR);
         $consultaInsert->bindValue(':numeroPedido', $this->numeroPedido, PDO::PARAM_STR);
+        $consultaInsert->bindValue(':nombre', $this->nombre, PDO::PARAM_STR);
         $consultaInsert->bindValue(':mesa', $this->mesa, PDO::PARAM_INT);
         $consultaInsert->execute();
 
@@ -24,8 +26,8 @@ class Pedido
     public function verificarPedido()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT numeroPedido FROM pedido WHERE mesa = :mesa");
-        $consulta->bindValue(':mesa', $this->mesa, PDO::PARAM_STR);
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT numeroPedido FROM pedido WHERE mesa = :mesa AND estado != 'terminado' ");
+        $consulta->bindValue(':mesa', $this->mesa, PDO::PARAM_INT);
         $consulta->execute();
         $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
         if ($resultado && isset($resultado['numeroPedido'])) {
@@ -92,7 +94,7 @@ class Pedido
     public static function guardarRutaFoto($mesa,$rutaDestino)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("UPDATE pedido SET rutaFoto = :rutaFoto WHERE mesa = :mesa");
+        $consulta = $objAccesoDatos->prepararConsulta("UPDATE pedido SET rutaFoto = :rutaFoto WHERE mesa = :mesa AND estado != 'terminado' ");
         $consulta->bindValue(':mesa', $mesa, PDO::PARAM_INT);
         $consulta->bindValue(':rutaFoto', $rutaDestino, PDO::PARAM_STR);
         $consulta->execute();
@@ -112,7 +114,6 @@ class Pedido
         $consulta->bindValue(':encargado', $tipo, PDO::PARAM_STR);
         $consulta->bindValue(':estado', 'pendiente', PDO::PARAM_STR);
         $consulta->execute();
-        echo "hola";
         $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
         return $resultado;
     }
