@@ -31,15 +31,6 @@ class Validador
         return false;
     }
     
-    public static function ValidarTalla($tipo){
-        if(self::ValidarSTR($tipo)){
-            $tipoMinuscula = strtolower($tipo);
-            if($tipoMinuscula == "l" || $tipoMinuscula == "m" || $tipoMinuscula == "s"){
-                return true;
-            }
-        }
-        return false;
-    }
     public static function ValidarSTR($dato){
         if(is_string($dato) && !is_numeric($dato))
         {
@@ -54,14 +45,10 @@ class Validador
         }
         return false;
     }
-    public static function esEmail($mail)
-    {
-        if (filter_var($mail, FILTER_VALIDATE_EMAIL) !== false) 
-        {
+    public static function validarLongitud($cadena) {
+        if (strlen($cadena) <= 66) {
             return true;
-        } 
-        else 
-        {
+        } else {
             return false;
         }
     }

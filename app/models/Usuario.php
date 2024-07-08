@@ -44,10 +44,9 @@ class Usuario
     public static function PDF()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, usuario, ocupacion, edad FROM usuarios");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, nombre, ocupacion, edad FROM usuarios");
         $consulta->execute();
 
-        // return $consulta->fetchAll(PDO::FETCH_CLASS, 'Usuario');
         return $consulta->fetchAll(PDO::FETCH_ASSOC);
     }
 

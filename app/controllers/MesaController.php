@@ -11,7 +11,7 @@ class MesaController
         $codigo = $this->generarCodigoAlfanumerico();
         $mesa = new Mesa();
         $mesa->numero = $parametros["numero"];
-        $mesa->estado = "vacio";
+        $mesa->estado = "cerrada";
         $mesa->fechaIngreso = (new DateTime())->format('Y-m-d');
         $mesa->codigo = $codigo;
         $mesa->crearMesa();
@@ -92,18 +92,14 @@ class MesaController
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
-
-    public function BorrarUno($request, $response, $args)
+    public function masUsada($request, $response, $args)
     {
-        $parametros = $request->getParsedBody();
-
-        $usuarioId = $parametros['usuarioId'];
-        Usuario::borrarUsuario($usuarioId);
-
-        $payload = json_encode(array("mensaje" => "Usuario borrado con exito"));
+        $lista = Mesa::masUsada();
+        $payload = json_encode(array("Mas Usada" => $lista));
 
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
+
 }

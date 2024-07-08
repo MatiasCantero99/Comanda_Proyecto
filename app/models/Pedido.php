@@ -161,8 +161,9 @@ class Pedido
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta(
-            "SELECT numeroPedido, tiempoestimado FROM pedido"
+            "SELECT numeroPedido, tiempoestimado FROM pedido WHERE estado != :estado"
         );
+        $consulta->bindValue(':estado', 'terminado', PDO::PARAM_STR);
         $consulta->execute();
         $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
         foreach ($resultado as &$fila) {

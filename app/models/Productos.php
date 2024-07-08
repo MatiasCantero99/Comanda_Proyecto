@@ -44,6 +44,15 @@ class Productos
         return $consulta->fetchObject('Productos');
     }
 
+    public static function DescargarCSV()
+    {
+        $objAccesoDato = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDato->prepararConsulta("SELECT id,nombre,encargado,precio FROM producto");
+        $consulta->execute();
+        $resultados = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        return $resultados;
+    }
+
     public static function borrarUsuario($usuario)
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();

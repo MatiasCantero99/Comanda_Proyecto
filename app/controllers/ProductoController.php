@@ -1,5 +1,6 @@
 <?php
 require_once './models/Productos.php';
+require_once './controllers/ArchivosController.php';
 
 class ProductoController
 {
@@ -77,5 +78,12 @@ class ProductoController
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
+    }
+
+    public static function descargarCSV()
+    {
+        $datos = Productos::DescargarCSV();
+        ArchivosController::descargarCSV($datos);
+
     }
 }

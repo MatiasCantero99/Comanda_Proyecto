@@ -31,6 +31,18 @@ class Mesa
         $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
         return $resultado;
     }
+    public static function masUsada()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT mesa, COUNT(*) AS cantidad
+            FROM pedido
+            GROUP BY mesa
+            ORDER BY cantidad DESC
+            LIMIT 1");
+        $consulta->execute();
+        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+        return $resultado;
+    }
 
     public static function obtenerMesa($numeroMesa)
     {

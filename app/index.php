@@ -21,12 +21,14 @@ require_once './middlewares/usuariosmw.php';
 require_once './middlewares/productomw.php';
 require_once './middlewares/pedidomw.php';
 require_once './middlewares/fotomw.php';
+require_once './middlewares/encuestamw.php';
 
 require_once './controllers/UsuarioController.php';
 require_once './controllers/ProductoController.php';
 require_once './controllers/MesaController.php';
 require_once './controllers/PedidoController.php';
 require_once './controllers/IngresoController.php';
+require_once './controllers/EncuestaController.php';
 
 // php -S localhost:666 -t app
 
@@ -98,7 +100,14 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     ->add([new Usuariosmw(),'codigosValidados'])
     ->add([new Usuariosmw(),'codigosSeteados']);
 
-    $group->get('/PDF', \UsuarioController::class . ':PDF');
+    $group->get('/PDF', \UsuarioController::class . ':PDF')
+    ->add([new Pedidomw(),'validarSocio'])
+    ->add([new Ingresomw(),'verificarToken']);
+
+    $group->get('/descargar', \ProductoController::class . ':descargarCSV')
+    ->add([new Pedidomw(),'validarSocio'])
+    ->add([new Ingresomw(),'verificarToken']);
+
   });
 
 //PRODUCTOS
@@ -125,7 +134,23 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->post('/cambiarACerrar', \MesaController::class . ':cambiarCerrar')
     ->add([new Pedidomw(),'validarSocio'])
     ->add([new Ingresomw(),'verificarToken']);
+
+    $group->get('/masUsada', \MesaController::class . ':masUsada')
+    ->add([new Pedidomw(),'validarSocio'])
+    ->add([new Ingresomw(),'verificarToken']);
   });
+
+  //ENCUESTA
+  $app->group('/encuesta', function (RouteCollectorProxy $group) {
+    $group->post('[/]', \EncuestaController::class . ':CargarUno')
+    ->add([new Encuestamw(),'encuestaValidados'])
+    ->add([new Encuestamw(),'encuestaSeteados']);
+
+    $group->get('/traerEncuesta', \EncuestaController::class . ':TraerMejores')
+    ->add([new Pedidomw(),'validarSocio'])
+    ->add([new Ingresomw(),'verificarToken']);
+  });
+
 
   //PEDIDO
   $app->group('/pedido', function (RouteCollectorProxy $group) {
