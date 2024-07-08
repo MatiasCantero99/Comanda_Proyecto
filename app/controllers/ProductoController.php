@@ -86,4 +86,38 @@ class ProductoController
         ArchivosController::descargarCSV($datos);
 
     }
+
+    public static function cargarCSV($request, $response, $args)
+    {
+      $archivo = $_FILES['datos_productos']['tmp_name'];
+
+
+      if (($handle = fopen($archivo, 'r')) !== FALSE) {
+  
+        $cabecera = fgetcsv($handle, 10000, ',');
+  
+  
+        while (($data = fgetcsv($handle, 10000, ',')) !== FALSE) {
+  
+          $fila = array_combine($cabecera, $data);
+          $fechaVencimiento = new DateTime();
+          $fechaVencimiento->modify('+45 days');
+          $prod = new Productos();
+          $prod->nombre = $fila['nombre'];
+          $prod->encargado = $fila['encargado'];
+          $prod->precio = $fila['precio'];
+          $prod->stock = $fila['stock'];
+          $prod->fechaIngreso = (new DateTime())->format('Y-m-d');
+          $prod->fechaVencimiento = $fechaVencimiento->format('Y-m-d');
+          $prod->crearProducto();
+        }
+        fclose($handle);
+        $payload = json_encode(array("mensaje" => "Productos cargados con exito"));
+      } else {
+        $payload = json_encode(array("mensaje" => "No se puede abrir el archivo."));
+      }
+      $response->getBody()->write($payload);
+      return $response
+        ->withHeader('Content-Type', 'application/json');
+    }
 }

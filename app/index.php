@@ -22,6 +22,7 @@ require_once './middlewares/productomw.php';
 require_once './middlewares/pedidomw.php';
 require_once './middlewares/fotomw.php';
 require_once './middlewares/encuestamw.php';
+require_once './middlewares/CSVmw.php';
 
 require_once './controllers/UsuarioController.php';
 require_once './controllers/ProductoController.php';
@@ -113,10 +114,15 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
 //PRODUCTOS
   $app->group('/productos', function (RouteCollectorProxy $group) {
     $group->get('[/]', \ProductoController::class . ':TraerTodos');
-    $group->get('/{nombre}', \ProductoController::class . ':TraerUno');
+
     $group->post('[/]', \ProductoController::class . ':CargarUno')
     ->add([new Productomw(),'productoValidados'])
     ->add([new Productomw(),'productoSeteados'])
+    ->add([new Ingresomw(),'verificarToken']);
+
+    $group->post('/cargarCSV', \ProductoController::class . ':cargarCSV')
+    ->add(new CSVmw())
+    ->add([new Pedidomw(),'validarSocio'])
     ->add([new Ingresomw(),'verificarToken']);
   });
 
