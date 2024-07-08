@@ -17,7 +17,6 @@ class UsuarioController
     if (!Validador::ValidarTipo($usuario['ocupacion'])){
         $response .= "El tipo no es bartender, mozo, cocinero, cervecero o socio. ";
     }
-    echo $datos->ocupacion;
     if (!Validador::ValidarTipoEspecifico($datos->ocupacion, 'socio')){
       $response .= "El usuario no es socio. ";
   }

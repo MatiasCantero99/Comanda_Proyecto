@@ -3,21 +3,21 @@
 class Mesa
 {
     public $id;
-    public $numero;
-    public $estado;
-    public $fechaIngreso;
-    public $fechaBaja;
-    public $codigo;
+    public $method;
+    public $uri;
+    public $params;
+    public $message;
+    public $ocupacion;
 
     public function crearMesa()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO mesa (numero,fechaIngreso,fechaBaja,estado, codigo) VALUES (:numero, :fechaIngreso, :fechaBaja, :estado, :codigo)");
-        $consulta->bindValue(':numero', $this->numero, PDO::PARAM_STR);
-        $consulta->bindValue(':fechaIngreso', $this->fechaIngreso, PDO::PARAM_STR);
-        $consulta->bindValue(':fechaBaja', $this->fechaBaja, PDO::PARAM_STR);
-        $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
-        $consulta->bindValue(':codigo', $this->codigo, PDO::PARAM_STR);
+        $consulta->bindValue(':numero', $this->method, PDO::PARAM_STR);
+        $consulta->bindValue(':fechaIngreso', $this->params, PDO::PARAM_STR);
+        $consulta->bindValue(':fechaBaja', $this->message, PDO::PARAM_STR);
+        $consulta->bindValue(':estado', $this->uri, PDO::PARAM_STR);
+        $consulta->bindValue(':codigo', $this->ocupacion, PDO::PARAM_STR);
         $consulta->execute();
 
         return $objAccesoDatos->obtenerUltimoId();
@@ -69,7 +69,7 @@ class Mesa
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("UPDATE mesa SET estado = :estado WHERE codigo = :mesa");
         $consulta->bindValue(':mesa', $codigo, PDO::PARAM_INT);
-        $consulta->bindValue(':estado', 'cerrada', PDO::PARAM_STR);
+        $consulta->bindValue(':estado', 'con cliente pagando', PDO::PARAM_STR);
         $consulta->execute();
 
     }
@@ -79,7 +79,7 @@ class Mesa
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("UPDATE mesa SET estado = :estado WHERE codigo = :mesa");
         $consulta->bindValue(':mesa', $codigo, PDO::PARAM_INT);
-        $consulta->bindValue(':estado', 'con cliente pagando', PDO::PARAM_STR);
+        $consulta->bindValue(':estado', 'cerrada', PDO::PARAM_STR);
         $consulta->execute();
 
     }

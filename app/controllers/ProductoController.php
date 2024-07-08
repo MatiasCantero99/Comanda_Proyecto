@@ -66,6 +66,16 @@ class ProductoController
           ->withHeader('Content-Type', 'application/json');
     }
 
+    public function TraerMasVendido($request, $response, $args)
+    {
+        $lista = Productos::obtenerMasVendido();
+        $payload = json_encode(array("Producto mas vendido" => $lista));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
     public function BorrarUno($request, $response, $args)
     {
         $parametros = $request->getParsedBody();

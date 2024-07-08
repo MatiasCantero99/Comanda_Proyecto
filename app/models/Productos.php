@@ -34,6 +34,26 @@ class Productos
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Productos');
     }
 
+    public static function obtenerMasVendido()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT 
+            p.nombre AS nombre_producto,
+            COUNT(cp.idProducto) AS cantidad_vendida
+            FROM 
+            conceptopedido cp
+            JOIN 
+            producto p ON cp.idProducto = p.id
+            GROUP BY 
+            cp.idProducto, p.nombre
+            ORDER BY 
+            cantidad_vendida DESC");
+        $consulta->execute();
+
+        $resultados = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        return $resultados;
+    }
+
     public static function obtenerProducto($nombreProducto)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();

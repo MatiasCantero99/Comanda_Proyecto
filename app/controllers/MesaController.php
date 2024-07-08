@@ -10,10 +10,10 @@ class MesaController
         // Creamos el producto
         $codigo = $this->generarCodigoAlfanumerico();
         $mesa = new Mesa();
-        $mesa->numero = $parametros["numero"];
-        $mesa->estado = "cerrada";
-        $mesa->fechaIngreso = (new DateTime())->format('Y-m-d');
-        $mesa->codigo = $codigo;
+        $mesa->method = $parametros["numero"];
+        $mesa->uri = "cerrada";
+        $mesa->params = (new DateTime())->format('Y-m-d');
+        $mesa->ocupacion = $codigo;
         $mesa->crearMesa();
 
         $payload = json_encode(array("mensaje" => "Mesa creado con exito"));

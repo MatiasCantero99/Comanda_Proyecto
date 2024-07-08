@@ -23,6 +23,7 @@ require_once './middlewares/pedidomw.php';
 require_once './middlewares/fotomw.php';
 require_once './middlewares/encuestamw.php';
 require_once './middlewares/CSVmw.php';
+require_once './middlewares/logmw.php';
 
 require_once './controllers/UsuarioController.php';
 require_once './controllers/ProductoController.php';
@@ -30,6 +31,7 @@ require_once './controllers/MesaController.php';
 require_once './controllers/PedidoController.php';
 require_once './controllers/IngresoController.php';
 require_once './controllers/EncuestaController.php';
+require_once './controllers/LoggerController.php';
 
 // php -S localhost:666 -t app
 
@@ -93,6 +95,7 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
 
     $group->post('[/]', \UsuarioController::class . ':CargarUno')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Usuariosmw(),'usuarioValidados'])
     ->add([new Usuariosmw(),'usuarioSeteados'])
     ->add([new Ingresomw(),'verificarToken']);
@@ -102,10 +105,12 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     ->add([new Usuariosmw(),'codigosSeteados']);
 
     $group->get('/PDF', \UsuarioController::class . ':PDF')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Pedidomw(),'validarSocio'])
     ->add([new Ingresomw(),'verificarToken']);
 
     $group->get('/descargar', \ProductoController::class . ':descargarCSV')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Pedidomw(),'validarSocio'])
     ->add([new Ingresomw(),'verificarToken']);
 
@@ -116,6 +121,7 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \ProductoController::class . ':TraerTodos');
 
     $group->post('[/]', \ProductoController::class . ':CargarUno')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Productomw(),'productoValidados'])
     ->add([new Productomw(),'productoSeteados'])
     ->add([new Ingresomw(),'verificarToken']);
@@ -124,24 +130,33 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     ->add(new CSVmw())
     ->add([new Pedidomw(),'validarSocio'])
     ->add([new Ingresomw(),'verificarToken']);
+
+    $group->get('/productoVendido', \ProductoController::class . ':TraerMasVendido')
+    ->add([new Logmw(),'LogOperacion'])
+    ->add([new Pedidomw(),'validarSocio'])
+    ->add([new Ingresomw(),'verificarToken']);
   });
 
   //MESA
   $app->group('/mesa', function (RouteCollectorProxy $group) {
     $group->get('/ListaMesa', \MesaController::class . ':TraerTodos')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Pedidomw(),'validarSocio'])
     ->add([new Ingresomw(),'verificarToken']);
     $group->post('[/]', \MesaController::class . ':CargarUno');
 
     $group->post('/cambiarACobrar', \MesaController::class . ':cambiarCobrar')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Pedidomw(),'validarMozo'])
     ->add([new Ingresomw(),'verificarToken']);
 
     $group->post('/cambiarACerrar', \MesaController::class . ':cambiarCerrar')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Pedidomw(),'validarSocio'])
     ->add([new Ingresomw(),'verificarToken']);
 
     $group->get('/masUsada', \MesaController::class . ':masUsada')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Pedidomw(),'validarSocio'])
     ->add([new Ingresomw(),'verificarToken']);
   });
@@ -149,10 +164,30 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
   //ENCUESTA
   $app->group('/encuesta', function (RouteCollectorProxy $group) {
     $group->post('[/]', \EncuestaController::class . ':CargarUno')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Encuestamw(),'encuestaValidados'])
     ->add([new Encuestamw(),'encuestaSeteados']);
 
     $group->get('/traerEncuesta', \EncuestaController::class . ':TraerMejores')
+    ->add([new Logmw(),'LogOperacion'])
+    ->add([new Pedidomw(),'validarSocio'])
+    ->add([new Ingresomw(),'verificarToken']);
+  });
+
+  //LOGGER
+  $app->group('/logger', function (RouteCollectorProxy $group) {
+    $group->post('/porSector', \LoggerController::class . ':TraerPorSector')
+    ->add([new Logmw(),'LogOperacion'])
+    ->add([new Pedidomw(),'validarSocio'])
+    ->add([new Ingresomw(),'verificarToken']);
+
+    $group->get('/traerGrupoSector', \LoggerController::class . ':TraerPorGrupoSector')
+    ->add([new Logmw(),'LogOperacion'])
+    ->add([new Pedidomw(),'validarSocio'])
+    ->add([new Ingresomw(),'verificarToken']);
+
+    $group->post('/traeLogsEmpleado', \LoggerController::class . ':TraerPorEmpleado')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Pedidomw(),'validarSocio'])
     ->add([new Ingresomw(),'verificarToken']);
   });
@@ -162,20 +197,24 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
   $app->group('/pedido', function (RouteCollectorProxy $group) {
     $group->get('[/]', \PedidoController::class . ':TraerTodos');
     $group->post('[/]', \PedidoController::class . ':CargarUno')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Pedidomw(),'pedidoValidados'])
     ->add([new Pedidomw(),'pedidoSeteados'])
     ->add([new Ingresomw(),'verificarToken']);
 
     $group->post('/cargarFoto', \PedidoController::class . ':CargarFoto')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Fotomw(),'fotoValidados'])
     ->add([new Fotomw(),'fotoSeteados'])
     ->add([new Ingresomw(),'verificarToken']);
 
     $group->get('/listarPedidos', \PedidoController::class . ':TraerLista')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Pedidomw(),'listaValidados'])
     ->add([new Ingresomw(),'verificarToken']);
 
     $group->get('/listarEnPreparacion', \PedidoController::class . ':TraerEnPreparacion')
+    ->add([new Logmw(),'LogOperacion'])
     ->add([new Pedidomw(),'listaValidados'])
     ->add([new Ingresomw(),'verificarToken']);
 
