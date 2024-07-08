@@ -53,6 +53,36 @@ class MesaController
           ->withHeader('Content-Type', 'application/json');
     }
 
+    public function cambiarCobrar($request, $response, $args)
+    {
+        $parametros = $request->getParsedBody();
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+        $datos = AutentificadorJWT::ObtenerData($token);
+        Mesa::modificarCobrar($parametros['codigo']);
+        $mensaje = 'Mesa cambiada con exito';
+        $payload = json_encode(array("mensaje" => $mensaje));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function cambiarCerrar($request, $response, $args)
+    {
+        $parametros = $request->getParsedBody();
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+        $datos = AutentificadorJWT::ObtenerData($token);
+        Mesa::modificarCerrar($parametros['codigo']);
+        $mensaje = 'Mesa cambiada con exito';
+        $payload = json_encode(array("mensaje" => $mensaje));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
     public function TraerTodos($request, $response, $args)
     {
         $lista = Mesa::obtenerTodos();

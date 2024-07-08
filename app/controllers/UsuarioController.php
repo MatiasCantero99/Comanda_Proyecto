@@ -29,6 +29,17 @@ class UsuarioController
   }
     return $response;
 }
+
+public static function ValidarCodigos($codigo){
+  $response = "";
+  if (!Validador::ValidarSTR($codigo['codigoMesa'])){
+      $response .= "El codigoMesa no es texto. ";
+  }
+  if (!Validador::ValidarSTR($codigo['codigoPedido'])){
+      $response .= "El codigoPedido no es correcta. ";
+  }
+  return $response;
+}
     public function CargarUno($request, $response, $args)
     {
       $parametros = $request->getParsedBody();
@@ -53,21 +64,8 @@ class UsuarioController
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public function TraerUno($request, $response, $args)
-    {
-        // Buscamos usuario por nombre
-        $usr = $args['usuario'];
-        $usuario = Usuario::obtenerUsuario($usr);
-        $payload = json_encode($usuario);
-
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
-    }
-
     public function PDF($request, $response, $args)
     {
-        // Buscamos usuario por nombre
         $lista = Usuario::PDF();
         $payload = json_encode(array("listaUsuario" => $lista));
         $pdf = new PDFGenerator();

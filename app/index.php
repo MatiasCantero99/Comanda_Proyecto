@@ -88,12 +88,15 @@ $app->group('/jwt', function (RouteCollectorProxy $group) {
 //USUARIOS
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
-    // $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
 
     $group->post('[/]', \UsuarioController::class . ':CargarUno')
     ->add([new Usuariosmw(),'usuarioValidados'])
     ->add([new Usuariosmw(),'usuarioSeteados'])
     ->add([new Ingresomw(),'verificarToken']);
+
+    $group->post('/mostrarPedido', \PedidoController::class . ':TraerPorCodigos')
+    ->add([new Usuariosmw(),'codigosValidados'])
+    ->add([new Usuariosmw(),'codigosSeteados']);
 
     $group->get('/PDF', \UsuarioController::class . ':PDF');
   });
@@ -110,9 +113,18 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
 
   //MESA
   $app->group('/mesa', function (RouteCollectorProxy $group) {
-    $group->get('[/]', \MesaController::class . ':TraerTodos');
-    $group->get('/{numero}', \MesaController::class . ':TraerUno');
+    $group->get('/ListaMesa', \MesaController::class . ':TraerTodos')
+    ->add([new Pedidomw(),'validarSocio'])
+    ->add([new Ingresomw(),'verificarToken']);
     $group->post('[/]', \MesaController::class . ':CargarUno');
+
+    $group->post('/cambiarACobrar', \MesaController::class . ':cambiarCobrar')
+    ->add([new Pedidomw(),'validarMozo'])
+    ->add([new Ingresomw(),'verificarToken']);
+
+    $group->post('/cambiarACerrar', \MesaController::class . ':cambiarCerrar')
+    ->add([new Pedidomw(),'validarSocio'])
+    ->add([new Ingresomw(),'verificarToken']);
   });
 
   //PEDIDO
@@ -132,9 +144,30 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     ->add([new Pedidomw(),'listaValidados'])
     ->add([new Ingresomw(),'verificarToken']);
 
+    $group->get('/listarEnPreparacion', \PedidoController::class . ':TraerEnPreparacion')
+    ->add([new Pedidomw(),'listaValidados'])
+    ->add([new Ingresomw(),'verificarToken']);
+
     $group->post('/cambiarPedido', \PedidoController::class . ':CambiarPedido')
     ->add([new Pedidomw(),'cambiarValidados'])
     ->add([new Pedidomw(),'cambiarSeteados'])
+    ->add([new Ingresomw(),'verificarToken']);
+
+    $group->post('/cambiarAListo', \PedidoController::class . ':CambiarPedidoListo')
+    ->add([new Pedidomw(),'listoValidados'])
+    ->add([new Pedidomw(),'listoSeteados'])
+    ->add([new Ingresomw(),'verificarToken']);
+
+    $group->get('/pedidoMozo', \PedidoController::class . ':TraeParaMozoListo')
+    ->add([new Pedidomw(),'validarMozo'])
+    ->add([new Ingresomw(),'verificarToken']);
+
+    $group->get('/pedidoSocio', \PedidoController::class . ':TraeParaSocio')
+    ->add([new Pedidomw(),'validarSocio'])
+    ->add([new Ingresomw(),'verificarToken']);
+
+    $group->get('/cobrar', \PedidoController::class . ':cobrar')
+    ->add([new Pedidomw(),'validarMozo'])
     ->add([new Ingresomw(),'verificarToken']);
   });
 

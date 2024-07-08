@@ -109,7 +109,7 @@ class Pedido
             FROM pedido AS p
             JOIN conceptopedido AS cp ON p.mesa = cp.mesa
             JOIN producto AS pr ON cp.idProducto = pr.id
-            WHERE pr.encargado = :encargado AND p.estado = :estado"
+            WHERE pr.encargado = :encargado AND cp.estado = :estado"
         );
         $consulta->bindValue(':encargado', $tipo, PDO::PARAM_STR);
         $consulta->bindValue(':estado', 'pendiente', PDO::PARAM_STR);
@@ -117,4 +117,108 @@ class Pedido
         $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
         return $resultado;
     }
+
+    public static function obtenerListaPreparacion($ocupacion)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta(
+            "SELECT * FROM `conceptopedido` WHERE estado = :estado AND idUsuario = :id"
+        );
+        $consulta->bindValue(':id', $ocupacion, PDO::PARAM_STR);
+        $consulta->bindValue(':estado', 'en preparacion', PDO::PARAM_STR);
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        return $resultado;
+    }
+
+    public static function obtenerListaPorCodigos($mesa,$pedido)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta(
+            "SELECT
+             p.numeroPedido AS numero_pedido,
+              cp.nombre AS nombre_producto,
+               cp.tiempoestimado AS tiempo_producto,
+                cp.estado AS estado_pedido,
+                 p.tiempoestimado AS tiempo_pedido
+                  FROM
+                   conceptopedido cp
+                    JOIN
+                     pedido p ON cp.numeropedido = p.numeroPedido
+                      JOIN
+                       mesa m ON p.mesa = m.numero
+                        WHERE
+                         m.codigo = :mesa
+                          AND p.numeroPedido = :pedido"
+        );
+        $consulta->bindValue(':mesa', $mesa, PDO::PARAM_STR);
+        $consulta->bindValue(':pedido', $pedido, PDO::PARAM_STR);
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        return $resultado;
+    }
+    public static function TraeParaSocio()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta(
+            "SELECT numeroPedido, tiempoestimado FROM pedido"
+        );
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($resultado as &$fila) {
+            if ($fila['tiempoestimado'] == null) {
+                $fila['tiempo_Estimado'] = 'nadie a cargo del pedido';
+            } else {
+                $fila['tiempo_Estimado'] = $fila['tiempoestimado'] . ' minutos';
+            }
+            unset($fila['tiempoestimado']);
+        }
+        return $resultado;
+    }
+
+    public static function TraeParaMozoListo($id)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta(
+            "SELECT cp.numeroPedido AS numero_Pedido,
+            cp.estado,
+            cp.nombre,
+            cp.mesa
+            FROM conceptopedido cp
+            JOIN pedido p ON cp.numeroPedido = p.numeroPedido
+            WHERE cp.estado = 'listo para servir' AND p.mozoAsignado = :id;"
+        );
+        $consulta->bindValue(':id', $id, PDO::PARAM_INT);
+        $consulta->execute();
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        return $resultado;
+    }
+
+    public static function TraePrecioACobrar($numeroPedido)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta(
+            "SELECT SUM(p.precio) AS total_precios
+            FROM conceptopedido cp
+            JOIN producto p ON cp.idProducto = p.id
+            WHERE cp.numeroPedido = :numeroPedido;"
+        );
+        $consulta->bindValue(':numeroPedido', $numeroPedido, PDO::PARAM_STR);
+        $consulta->execute();
+        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+        return $resultado;
+    }
+
+    public static function AgregarCobro($precio,$numeroPedido)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("UPDATE pedido SET cobrar = :cobrar WHERE numeroPedido = :numeroPedido"
+        );
+        $consulta->bindValue(':numeroPedido', $numeroPedido, PDO::PARAM_STR);
+        $consulta->bindValue(':cobrar', $precio, PDO::PARAM_INT);
+        $consulta->execute();
+        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+        return 'pedido cobrado exitosamente';
+    }
+
 }

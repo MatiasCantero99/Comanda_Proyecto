@@ -1,5 +1,6 @@
 <?php
 require_once './models/Pedido.php';
+require_once './models/Mesa.php';
 require_once './models/ConceptoPedido.php';
 require_once './utils/AutentificadorJWT.php';
 
@@ -49,6 +50,17 @@ class PedidoController
         return $response;
     }
 
+    public static function ValidarListo($usuario,$datos){
+        $response = "";
+        if (!Validador::ValidarSTR($usuario['codigo'])){
+            $response .= "El pedido no es alfanumerico. ";
+        }
+        if (!Validador::ValidarTipo($datos->ocupacion)){
+          $response .= "El usuario es incorrecto. ";
+        }
+        return $response;
+    }
+
     public static function ValidarLista($datos){
         $response = "";
         if (!Validador::ValidarTipo($datos->ocupacion)){
@@ -56,6 +68,7 @@ class PedidoController
         }
         return $response;
     }
+
     public function CargarUno($request, $response, $args)
     {
         $header = $request->getHeaderLine('Authorization');
@@ -84,9 +97,11 @@ class PedidoController
         if($resultado !== ''){
             $conceptoPedido->numeroPedido = $resultado;
             $mensaje = $conceptoPedido->crearConceptoPedido();
+            $mensaje .= ' numero de pedido:' . $resultado;
         }
         else{
             $mensaje = $conceptoPedido->crearConceptoPedido();
+            $mensaje .= ' numero de pedido:' . $numeroPedido;
             if($mensaje !== 'Nombre del Producto no encontrado'){
                 $pedido->crearPedido();
             }
@@ -136,9 +151,24 @@ class PedidoController
         $header = $request->getHeaderLine('Authorization');
         $token = trim(explode("Bearer", $header)[1]);
         $datos = AutentificadorJWT::ObtenerData($token);
-        ConceptoPedido::cambiarPedido($parametros['codigo'],$parametros['tiempo']);
-        echo "hola";
+        ConceptoPedido::cambiarPedido($parametros['codigo'],$parametros['tiempo'],$datos->id);
         ConceptoPedido::cambiarTiempo($parametros['codigo'],$parametros['tiempo']);
+
+        $mensaje = 'pedido actualizado';
+        $payload = json_encode(array("mensaje" => $mensaje));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function CambiarPedidoListo($request, $response, $args)
+    {
+        $parametros = $request->getParsedBody();
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+        $datos = AutentificadorJWT::ObtenerData($token);
+        ConceptoPedido::cambiarPedidoAListo($parametros['codigo']);
 
         $mensaje = 'pedido actualizado';
         $payload = json_encode(array("mensaje" => $mensaje));
@@ -155,6 +185,87 @@ class PedidoController
         $datos = AutentificadorJWT::ObtenerData($token);
         $mensaje = Pedido::obtenerListaPorTipo($datos->ocupacion);
         $payload = json_encode($mensaje);
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function TraerEnPreparacion($request, $response, $args)
+    {
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+        $datos = AutentificadorJWT::ObtenerData($token);
+        $mensaje = Pedido::obtenerListaPreparacion($datos->id);
+        $payload = json_encode($mensaje);
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function TraerPorCodigos($request, $response, $args)
+    {
+        $parametros = $request->getParsedBody();   
+        $mensaje = Pedido::obtenerListaPorCodigos($parametros['codigoMesa'],$parametros['codigoPedido']);
+        $payload = json_encode(array("pedidos" => $mensaje));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function TraeParaSocio($request, $response, $args)
+    {
+        $mensaje = Pedido::TraeParaSocio();
+        $payload = json_encode(array("pedidos" => $mensaje));
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function TraeParaMozoListo($request, $response, $args)
+    {
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+        $datos = AutentificadorJWT::ObtenerData($token);
+        $mensaje = Pedido::TraeParaMozoListo($datos->id);
+        foreach($mensaje as $fila){
+            Mesa::modificarEstado($fila['mesa']);
+        }
+        
+        $payload = json_encode(array("pedidos" => $mensaje));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+    public function cobrar($request, $response, $args)
+    {
+        $parametros = $request->getParsedBody();
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+        $datos = AutentificadorJWT::ObtenerData($token);
+        $precio = Pedido::TraePrecioACobrar($parametros['codigo']);
+        $mensaje = Pedido::AgregarCobro($precio,$parametros['codigo']);
+        
+        $payload = json_encode(array("pedidos" => $mensaje));
+
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function cambiarCobrar($request, $response, $args)
+    {
+        $parametros = $request->getParsedBody();
+        $header = $request->getHeaderLine('Authorization');
+        $token = trim(explode("Bearer", $header)[1]);
+        $datos = AutentificadorJWT::ObtenerData($token);
+        $precio = Pedido::TraePrecioACobrar($parametros['codigo']);
+        $mensaje = Pedido::AgregarCobro($precio,$parametros['codigo']);
+        
+        $payload = json_encode(array("pedidos" => $mensaje));
 
         $response->getBody()->write($payload);
         return $response

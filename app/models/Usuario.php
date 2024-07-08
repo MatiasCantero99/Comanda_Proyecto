@@ -50,15 +50,6 @@ class Usuario
         // return $consulta->fetchAll(PDO::FETCH_CLASS, 'Usuario');
         return $consulta->fetchAll(PDO::FETCH_ASSOC);
     }
-    public static function obtenerUsuario($usuario)
-    {
-        $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, usuario, clave FROM usuarios WHERE usuario = :usuario");
-        $consulta->bindValue(':usuario', $usuario, PDO::PARAM_STR);
-        $consulta->execute();
-
-        return $consulta->fetchObject('Usuario');
-    }
 
     public static function borrarUsuario($usuario)
     {

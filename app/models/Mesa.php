@@ -26,20 +26,50 @@ class Mesa
     public static function obtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM mesa");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT numero, estado  FROM mesa");
         $consulta->execute();
-
-        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Mesa');
+        $resultado = $consulta->fetchAll(PDO::FETCH_ASSOC);
+        return $resultado;
     }
 
     public static function obtenerMesa($numeroMesa)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM mesa WHERE numero = :numero");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT numero, estado  FROM mesa");
         $consulta->bindValue(':numero', $numeroMesa, PDO::PARAM_STR);
         $consulta->execute();
 
         return $consulta->fetchObject('Mesa');
+    }
+
+    public static function modificarEstado($numeroMesa)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("UPDATE mesa SET estado = :estado WHERE numero = :mesa");
+        $consulta->bindValue(':mesa', $numeroMesa, PDO::PARAM_INT);
+        $consulta->bindValue(':estado', 'con cliente comiendo', PDO::PARAM_STR);
+        $consulta->execute();
+
+    }
+
+    public static function modificarCobrar($codigo)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("UPDATE mesa SET estado = :estado WHERE codigo = :mesa");
+        $consulta->bindValue(':mesa', $codigo, PDO::PARAM_INT);
+        $consulta->bindValue(':estado', 'cerrada', PDO::PARAM_STR);
+        $consulta->execute();
+
+    }
+
+    public static function modificarCerrar($codigo)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("UPDATE mesa SET estado = :estado WHERE codigo = :mesa");
+        $consulta->bindValue(':mesa', $codigo, PDO::PARAM_INT);
+        $consulta->bindValue(':estado', 'con cliente pagando', PDO::PARAM_STR);
+        $consulta->execute();
+
     }
 
     public static function borrarUsuario($usuario)

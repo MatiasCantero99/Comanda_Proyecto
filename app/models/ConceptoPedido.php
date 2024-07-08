@@ -81,13 +81,24 @@ class ConceptoPedido
         $consulta->execute();
     }
 
-    public static function cambiarPedido($numeroPedido,$tiempo)
+    public static function cambiarPedido($numeroPedido,$tiempo,$idUsuario)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("UPDATE conceptopedido SET estado = :estado, tiempoestimado = :tiempoestimado, idUsuario = :id WHERE numeroPedidoIndividual = :numeroPedido");
+        $consulta->bindValue(':numeroPedido', $numeroPedido, PDO::PARAM_STR);
+        $consulta->bindValue(':estado', 'en preparacion', PDO::PARAM_STR);
+        $consulta->bindValue(':tiempoestimado', (int)$tiempo, PDO::PARAM_INT);
+        $consulta->bindValue(':id', $idUsuario, PDO::PARAM_INT);
+        $consulta->execute();
+    }
+
+    public static function cambiarPedidoAListo($numeroPedido)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("UPDATE conceptopedido SET estado = :estado, tiempoestimado = :tiempoestimado WHERE numeroPedidoIndividual = :numeroPedido");
         $consulta->bindValue(':numeroPedido', $numeroPedido, PDO::PARAM_STR);
-        $consulta->bindValue(':estado', 'en preparacion', PDO::PARAM_STR);
-        $consulta->bindValue(':tiempoestimado', (int)$tiempo, PDO::PARAM_INT);
+        $consulta->bindValue(':estado', 'listo para servir', PDO::PARAM_STR);
+        $consulta->bindValue(':tiempoestimado', 0, PDO::PARAM_INT);
         $consulta->execute();
     }
 
@@ -100,14 +111,7 @@ class ConceptoPedido
         $consulta->bindValue(':estado', 'en preparacion', PDO::PARAM_STR);
         $consulta->bindValue(':nuevoTiempoEstimado', (int)$tiempo, PDO::PARAM_INT);
         $consulta->bindValue(':compararTiempo', (int)$tiempo, PDO::PARAM_INT);
-        echo "\n hola3sad";
         $consulta->execute();
-        // try {
-        //     $consulta->execute();
-        //     echo "\n hola2";
-        // } catch (PDOException $e) {
-        //     echo 'Error en la consulta: ' . $e->getMessage();
-        // }
     }
 
     public static function traeNumeroPedido($numeroPedido)

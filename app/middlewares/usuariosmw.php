@@ -39,4 +39,35 @@ class Usuariosmw
 
         return $response->withHeader('Content-Type', 'application/json');
     }
+
+    public function codigosSeteados(Request $request, RequestHandler $handler): Response
+    {   
+        $parametros = $request->getParsedBody();
+        if(isset($parametros['codigoMesa']) && isset($parametros['codigoPedido'])){
+            $response = $handler->handle($request);
+        }
+        else{
+            $response = new Response();
+            $payload = json_encode(array("mensaje" => "No estan todas los parametros usados"));
+            $response->getBody()->write($payload);
+        }
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function codigosValidados(Request $request, RequestHandler $handler): Response
+    {   
+        $parametros = $request->getParsedBody();
+        $mensaje = UsuarioController::ValidarCodigos($parametros);
+        if($mensaje == ""){
+            $response = $handler->handle($request);
+        }
+        else{
+            $response = new Response();
+            $payload = json_encode(array('mensaje' => $mensaje));
+            $response->getBody()->write($payload);
+        }
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
 }
